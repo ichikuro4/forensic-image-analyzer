@@ -1,0 +1,1 @@
+# Verificación hash/integridad

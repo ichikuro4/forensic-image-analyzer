@@ -1,0 +1,38 @@
+forensic-image-analyzer/
+├── README.md
+├── requirements.txt
+├── setup.sh                    # Script de instalación/configuración
+├── config/
+│   ├── tools.yaml             # Configuración de herramientas
+│   └── settings.yaml          # Configuración general
+├── src/
+│   ├── __init__.py
+│   ├── main.py                # Punto de entrada principal
+│   ├── core/
+│   │   ├── __init__.py
+│   │   ├── integrity.py       # Verificación hash/integridad
+│   │   ├── acquisition.py     # Adquisición segura de imágenes
+│   │   └── logger.py          # Sistema de logging
+│   ├── analyzers/
+│   │   ├── __init__.py
+│   │   ├── base_analyzer.py   # Clase base para todos los analizadores
+│   │   ├── exiftool.py
+│   │   ├── ghiro.py
+│   │   ├── sherloq.py
+│   │   ├── forensically.py
+│   │   └── autopsy. py
+│   ├── orchestrator/
+│   │   ├── __init__.py
+│   │   └── pipeline.py        # Orquestación de análisis
+│   ├── reporting/
+│   │   ├── __init__.py
+│   │   ├── consolidator.py    # Consolidar resultados
+│   │   └── generator.py       # Generar informe final
+│   └── gui/
+│       ├── __init__.py
+│       └── main_window.py     # GUI principal (para más adelante)
+├── data/
+│   ├── input/                 # Imágenes a analizar
+│   ├── output/                # Informes generados
+│   └── temp/                  # Archivos temporales
+└── logs/                      # Logs del sistema

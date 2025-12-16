@@ -1,0 +1,1 @@
+# Adquisición segura de imágenes
