@@ -322,6 +322,52 @@
             border-left:  4px solid #856404;
             color: #856404;
         }
+
+                /* Estilos para ELA */
+        .ela-preview {
+            max-width: 100%;
+            max-height: 500px;
+            border: 3px solid #667eea;
+            border-radius:  10px;
+            box-shadow:  0 5px 20px rgba(0,0,0,0.2);
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .suspicion-box {
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .suspicion-bajo {
+            background:  #d4edda;
+            color:  #155724;
+            border-left: 5px solid #28a745;
+        }
+        
+        .suspicion-moderado {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 5px solid #ffc107;
+        }
+        
+        .suspicion-alto {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 5px solid #dc3545;
+        }
+        
+        .suspicion-muy-alto {
+            background: #f5c6cb;
+            color:  #721c24;
+            border-left: 5px solid #c82333;
+            font-weight: bold;
+        }
+
     </style>
 </head>
 <body>
@@ -492,7 +538,7 @@
             </div>
         </div>
         
-        <!-- TAB: Cada herramienta -->
+                <!-- TAB: Cada herramienta -->
         {% for tool_name, tool_data in analysis_results.items() %}
         <div id="{{ tool_name|lower|replace(' ', '_') }}" class="tab-content">
             <div class="section">
@@ -511,69 +557,154 @@
                 <div class="alert alert-warning">
                     <strong>⚠️ Error:</strong> {{ tool_data.error }}
                 </div>
+                
                 {% elif tool_data.status == 'not_implemented' %}
                 <div class="alert alert-info">
                     <strong>ℹ️ Información:</strong> Esta herramienta aún no está implementada.
                     Será añadida en futuras versiones del sistema.
                 </div>
-                {                {% else %}
                 
-                <!-- AÑADIR AQUÍ:  Análisis de sospechas -->
-                {% if tool_name == 'Exiftool' and exif_suspicions %}
-                <div class="card" style="border-left: 4px solid #ff6b6b;">
-                    <div class="card-title">⚠️ Análisis de Anomalías</div>
+                {% else %}
+                
+                <!-- Análisis específico para ELA -->
+                {% if tool_name == 'ELA (Error Level Analysis)' %}
                     
-                    {% if exif_suspicions|length > 0 %}
-                    <div class="alert alert-warning">
-                        <strong>Se detectaron {{ exif_suspicions|length }} anomalía(s) en los metadatos: </strong>
-                    </div>
-                    
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Campo</th>
-                                <th>Valor</th>
-                                <th>Observación</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for field, value, reason in exif_suspicions %}
-                            <tr style="background:  #fff3cd;">
-                                <td><strong>{{ field }}</strong></td>
-                                <td style="max-width: 300px; word-break: break-word;">{{ value }}</td>
-                                <td><strong>{{ reason }}</strong></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    {% else %}
-                    <div class="alert alert-info">
-                        <strong>✅ No se detectaron anomalías evidentes en los metadatos.</strong>
+                    <!-- Nivel de Sospecha -->
+                    {% if tool_data.suspicion_level %}
+                    <div class="suspicion-box suspicion-{{ tool_data.suspicion_level|lower|replace(' ', '-') }}">
+                        🔍 Nivel de Sospecha: {{ tool_data.suspicion_level|upper }}
                     </div>
                     {% endif %}
-                </div>
+                    
+                    <!-- Interpretación -->
+                    {% if tool_data.interpretation %}
+                    <div class="card">
+                        <div class="card-title">📋 Interpretación</div>
+                        <p style="line-height: 1.8; color: #555; font-size: 1.05em;">
+                            {{ tool_data.interpretation }}
+                        </p>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Imagen ELA -->
+                    {% if ela_image_base64 %}
+                    <div class="card">
+                        <div class="card-title">🖼️ Mapa de Diferencias ELA</div>
+                        <p style="color: #666; margin-bottom: 15px; line-height: 1.6;">
+                            <strong>¿Cómo interpretar esta imagen?</strong><br>
+                            • Las áreas <strong>más brillantes</strong> indican mayor diferencia de compresión (posible manipulación)<br>
+                            • Las áreas <strong>más oscuras</strong> indican compresión uniforme (sin alteraciones)<br>
+                            • Los <strong>bordes naturales</strong> aparecerán ligeramente brillantes (normal)
+                        </p>
+                        <img src="{{ ela_image_base64 }}" alt="ELA Analysis" class="ela-preview">
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Datos Técnicos ELA -->
+                    <div class="card">
+                        <div class="card-title">📊 Datos Técnicos</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Parámetro</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for key, value in tool_data.items() %}
+                                {% if key not in ['ela_image_path', 'status'] %}
+                                <tr>
+                                    <td><strong>{{ key|replace('_', ' ')|title }}</strong></td>
+                                    <td>{{ value }}</td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                
+                <!-- Análisis de anomalías para Exiftool -->
+                {% elif tool_name == 'Exiftool' %}
+                    
+                    {% if exif_suspicions %}
+                    <div class="card" style="border-left: 4px solid #ff6b6b;">
+                        <div class="card-title">⚠️ Análisis de Anomalías</div>
+                        
+                        {% if exif_suspicions|length > 0 %}
+                        <div class="alert alert-warning">
+                            <strong>Se detectaron {{ exif_suspicions|length }} anomalía(s) en los metadatos:</strong>
+                        </div>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Campo</th>
+                                    <th>Valor</th>
+                                    <th>Observación</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for field, value, reason in exif_suspicions %}
+                                <tr style="background:  #fff3cd;">
+                                    <td><strong>{{ field }}</strong></td>
+                                    <td style="max-width: 300px; word-break: break-word;">{{ value }}</td>
+                                    <td><strong>{{ reason }}</strong></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <div class="alert alert-info">
+                            <strong>✅ No se detectaron anomalías evidentes en los metadatos.</strong>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Tabla de metadatos EXIF completos -->
+                    <div class="card">
+                        <div class="card-title">📋 Metadatos EXIF Completos</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Campo</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for key, value in tool_data.items() %}
+                                <tr>
+                                    <td><strong>{{ key }}</strong></td>
+                                    <td>{{ value }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                
+                <!-- Herramientas genéricas -->
+                {% else %}
+                    <div class="card">
+                        <div class="card-title">Resultados del Análisis</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Campo</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for key, value in tool_data.items() %}
+                                <tr>
+                                    <td><strong>{{ key }}</strong></td>
+                                    <td>{{ value }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 {% endif %}
                 
-                <!-- Tabla de resultados normal -->
-                <div class="card">
-                    <div class="card-title">Resultados del Análisis</div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Campo</th>
-                                <th>Valor</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for key, value in tool_data.items() %}
-                            <tr>
-                                <td><strong>{{ key }}</strong></td>
-                                <td>{{ value }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
                 {% endif %}
             </div>
         </div>

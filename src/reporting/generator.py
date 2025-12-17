@@ -233,9 +233,17 @@ def generate_html_report(consolidated_data: Dict, output_dir: str) -> str:
             'analysis_results': analysis,
             'analyzers_count': len([a for a in analysis.values() if not a.get('error')]),
             'image_base64': image_base64,
-            'exif_suspicions': suspicions
+            'exif_suspicions': suspicions,
+            # Añadir imagen ELA si existe
+            'ela_image_base64': ''
         }
-        
+                # Verificar si hay resultados ELA y convertir imagen
+        ela_results = analysis.get('ELA (Error Level Analysis)', {})
+        if ela_results and ela_results.get('ela_image_path'):
+            ela_path = ela_results['ela_image_path']
+            if Path(ela_path).exists():
+                template_data['ela_image_base64'] = image_to_base64(ela_path)
+
         # Renderizar HTML
         html_content = template. render(**template_data)
         
