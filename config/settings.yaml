@@ -1,1 +1,26 @@
 # Configuración general
+system:
+  log_level: INFO
+  temp_dir: data/temp
+  
+integrity:
+  hash_algorithm: sha256
+  
+acquisition:
+  preserve_metadata: true
+  chain_of_custody: true
+  
+analysis:
+  supported_formats: 
+    - jpg
+    - jpeg
+    - png
+    - bmp
+    - tiff
+    - gif
+  parallel_execution: false
+  
+reporting:
+  output_format: json
+  include_timestamps: true
+  include_hashes: true

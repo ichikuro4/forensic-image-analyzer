@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe Forense - {{ image_name }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family:  'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background:  linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow:  0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align:  center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header .subtitle {
+            font-size:  1.2em;
+            opacity: 0.9;
+        }
+        
+        .metadata-bar {
+            background: #f8f9fa;
+            padding:  20px 40px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .metadata-item {
+            margin: 10px 0;
+        }
+        
+        .metadata-item strong {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        /* TABS NAVIGATION */
+        .tabs-container {
+            background: #2c3e50;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 10px;
+            gap: 10px;
+        }
+        
+        .tab-button {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 2px solid transparent;
+            padding: 15px 30px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tab-button:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        .tab-icon {
+            font-size: 1.2em;
+        }
+        
+        /* TAB CONTENT */
+        .tab-content {
+            display: none;
+            padding: 40px;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size:  1.8em;
+            color: #667eea;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .section-title::before {
+            content: '🔍';
+            margin-right: 10px;
+        }
+        
+        .card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin:  15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .card-title {
+            font-size: 1.3em;
+            color: #764ba2;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .hash-item {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            border-left: 3px solid #28a745;
+        }
+        
+        .hash-label {
+            font-weight: bold;
+            color: #28a745;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .metadata-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .metadata-entry {
+            background: white;
+            padding: 12px;
+            border-radius:  5px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .metadata-key {
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .metadata-value {
+            color: #555;
+            text-align: right;
+            word-break: break-word;
+            max-width: 60%;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius:  20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color:  #155724;
+        }
+        
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .summary-stats {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin:  20px 0;
+        }
+        
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius:  10px;
+            text-align:  center;
+            min-width: 150px;
+            margin: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size:  0.9em;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        
+        .image-preview {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            margin: 20px auto;
+            display: block;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 10px 12px;
+            border-bottom:  1px solid #ddd;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .tool-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .tool-name {
+            font-size: 1.5em;
+            font-weight:  bold;
+            color: #764ba2;
+        }
+        
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            font-size: 0.9em;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            border-left: 4px solid #0c5460;
+            color: #0c5460;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            border-left:  4px solid #856404;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🔍 Informe Forense Digital</h1>
+            <div class="subtitle">Análisis de Imagen - Sistema Automatizado</div>
+        </div>
+        
+        <!-- Metadata Bar -->
+        <div class="metadata-bar">
+            <div class="metadata-item">
+                <strong>Fecha de Análisis:</strong> {{ report_date }}
+            </div>
+            <div class="metadata-item">
+                <strong>Imagen:</strong> {{ image_name }}
+            </div>
+            <div class="metadata-item">
+                <strong>Versión:</strong> {{ version }}
+            </div>
+        </div>
+        
+        <!-- Tabs Navigation -->
+        <div class="tabs-container">
+            <button class="tab-button active" onclick="openTab('resumen', this)">
+                <span class="tab-icon">📊</span> Resumen Ejecutivo
+            </button>
+            <button class="tab-button" onclick="openTab('integridad', this)">
+                <span class="tab-icon">🔐</span> Integridad
+            </button>
+            {% for tool_name in analysis_results.keys() %}
+            <button class="tab-button" onclick="openTab('{{ tool_name|lower|replace(' ', '_') }}', this)">
+                <span class="tab-icon">🔧</span> {{ tool_name }}
+            </button>
+            {% endfor %}
+            <button class="tab-button" onclick="openTab('informe-final', this)">
+                <span class="tab-icon">📄</span> Informe Final
+            </button>
+        </div>
+        
+        <!-- TAB:  Resumen Ejecutivo -->
+        <div id="resumen" class="tab-content active">
+            <div class="section">
+                <h2 class="section-title">Resumen Ejecutivo</h2>
+                
+                <div class="summary-stats">
+                    <div class="stat-box">
+                        <span class="stat-value">{{ analyzers_count }}</span>
+                        <span class="stat-label">Analizadores Activos</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-value">{{ file_size }}</span>
+                        <span class="stat-label">Tamaño del Archivo</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-value">✓</span>
+                        <span class="stat-label">Integridad Verificada</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">Información General</div>
+                    <div class="metadata-grid">
+                        <div class="metadata-entry">
+                            <span class="metadata-key">Nombre del Archivo:</span>
+                            <span class="metadata-value">{{ image_name }}</span>
+                        </div>
+                        <div class="metadata-entry">
+                            <span class="metadata-key">Ruta Original:</span>
+                            <span class="metadata-value">{{ original_path }}</span>
+                        </div>
+                        <div class="metadata-entry">
+                            <span class="metadata-key">Fecha de Adquisición:</span>
+                            <span class="metadata-value">{{ acquisition_date }}</span>
+                        </div>
+                        <div class="metadata-entry">
+                            <span class="metadata-key">Tamaño: </span>
+                            <span class="metadata-value">{{ file_size }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">Herramientas Ejecutadas</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Herramienta</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tool_name, tool_data in analysis_results.items() %}
+                            <tr>
+                                <td><strong>{{ tool_name }}</strong></td>
+                                <td>
+                                    {% if tool_data.error %}
+                                    <span class="status-badge status-error">Error</span>
+                                    {% elif tool_data.status == 'not_implemented' %}
+                                    <span class="status-badge status-warning">No Implementado</span>
+                                    {% else %}
+                                    <span class="status-badge status-success">Completado ✓</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAB: Integridad -->
+        <div id="integridad" class="tab-content">
+            <div class="section">
+                <h2 class="section-title">Verificación de Integridad</h2>
+                
+                <div class="alert alert-info">
+                    <strong>ℹ️ Información:</strong> Los siguientes hashes criptográficos garantizan la integridad 
+                    del archivo analizado.  Cualquier modificación resultaría en valores diferentes.
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">Hashes Criptográficos</div>
+                    <div class="hash-item">
+                        <span class="hash-label">MD5:</span>
+                        {{ md5_hash }}
+                    </div>
+                    <div class="hash-item">
+                        <span class="hash-label">SHA-1:</span>
+                        {{ sha1_hash }}
+                    </div>
+                    <div class="hash-item">
+                        <span class="hash-label">SHA-256:</span>
+                        {{ sha256_hash }}
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">Cadena de Custodia</div>
+                    <div class="metadata-grid">
+                        <div class="metadata-entry">
+                            <span class="metadata-key">Archivo Original:</span>
+                            <span class="metadata-value">{{ original_path }}</span>
+                        </div>
+                        <div class="metadata-entry">
+                            <span class="metadata-key">Fecha de Adquisición:</span>
+                            <span class="metadata-value">{{ acquisition_date }}</span>
+                        </div>
+                        <div class="metadata-entry">
+                            <span class="metadata-key">Método: </span>
+                            <span class="metadata-value">Copia Forense Segura</span>
+                        </div>
+                        <div class="metadata-entry">
+                            <span class="metadata-key">Tamaño Verificado:</span>
+                            <span class="metadata-value">{{ file_size }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAB: Cada herramienta -->
+        {% for tool_name, tool_data in analysis_results.items() %}
+        <div id="{{ tool_name|lower|replace(' ', '_') }}" class="tab-content">
+            <div class="section">
+                <div class="tool-header">
+                    <h2 class="tool-name">{{ tool_name }}</h2>
+                    {% if tool_data.error %}
+                    <span class="status-badge status-error">Error</span>
+                    {% elif tool_data.status == 'not_implemented' %}
+                    <span class="status-badge status-warning">No Implementado</span>
+                    {% else %}
+                    <span class="status-badge status-success">Completado ✓</span>
+                    {% endif %}
+                </div>
+                
+                {% if tool_data.error %}
+                <div class="alert alert-warning">
+                    <strong>⚠️ Error:</strong> {{ tool_data.error }}
+                </div>
+                {% elif tool_data.status == 'not_implemented' %}
+                <div class="alert alert-info">
+                    <strong>ℹ️ Información:</strong> Esta herramienta aún no está implementada.
+                    Será añadida en futuras versiones del sistema.
+                </div>
+                {% else %}
+                <div class="card">
+                    <div class="card-title">Resultados del Análisis</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Campo</th>
+                                <th>Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for key, value in tool_data.items() %}
+                            <tr>
+                                <td><strong>{{ key }}</strong></td>
+                                <td>{{ value }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        
+        <!-- TAB:  Informe Final -->
+        <div id="informe-final" class="tab-content">
+            <div class="section">
+                <h2 class="section-title">Informe Final Consolidado</h2>
+                
+                <div class="card">
+                    <div class="card-title">Conclusiones del Análisis</div>
+                    <p style="line-height: 1.6; color: #555;">
+                        El análisis forense de la imagen <strong>{{ image_name }}</strong> ha sido completado exitosamente.
+                        Se ejecutaron <strong>{{ analyzers_count }}</strong> herramienta(s) de análisis.
+                    </p>
+                    
+                    <h3 style="margin-top: 30px; color: #667eea;">Resumen de Hallazgos: </h3>
+                    <ul style="margin:  15px 0; padding-left:  20px; line-height: 1.8; color: #555;">
+                        <li>✅ Integridad del archivo verificada mediante hashes criptográficos</li>
+                        <li>✅ Cadena de custodia documentada</li>
+                        <li>✅ Metadatos extraídos y analizados</li>
+                        {% if analyzers_count > 1 %}
+                        <li>✅ Análisis de manipulación completado</li>
+                        {% endif %}
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">Datos Técnicos Completos</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Categoría</th>
+                                <th>Información</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Archivo Analizado</strong></td>
+                                <td>{{ image_name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tamaño</strong></td>
+                                <td>{{ file_size }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hash MD5</strong></td>
+                                <td style="font-family: monospace; font-size: 0.85em;">{{ md5_hash }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hash SHA-256</strong></td>
+                                <td style="font-family:  monospace; font-size: 0.85em;">{{ sha256_hash }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fecha de Análisis</strong></td>
+                                <td>{{ report_date }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sistema Utilizado</strong></td>
+                                <td>Forensic Image Analyzer v{{ version }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="alert alert-info">
+                    <strong>📌 Nota Legal:</strong> Este informe ha sido generado automáticamente por un sistema 
+                    de análisis forense. Los resultados deben ser interpretados por un profesional cualificado 
+                    y pueden ser utilizados como evidencia en procedimientos legales. 
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>🔐 Informe generado por Forensic Image Analyzer v{{ version }}</p>
+            <p>Sistema automatizado de análisis forense de imágenes digitales</p>
+            <p style="margin-top: 10px; opacity: 0.7;">
+                © 2025 ichikuro4 - Este documento es confidencial
+            </p>
+        </div>
+    </div>
+    
+    <script>
+    // Sistema de pestañas
+    function openTab(tabName, button) {
+        // Ocultar todos los contenidos
+        var contents = document.getElementsByClassName('tab-content');
+        for (var i = 0; i < contents.length; i++) {
+            contents[i].classList.remove('active');
+        }
+        
+        // Desactivar todos los botones
+        var buttons = document.getElementsByClassName('tab-button');
+        for (var i = 0; i < buttons.length; i++) {
+            buttons[i].classList.remove('active');
+        }
+        
+        // Mostrar el contenido seleccionado
+        document.getElementById(tabName).classList.add('active');
+        
+        // Activar el botón clickeado
+        button.classList.add('active');
+    }
+    </script>
+</body>
+</html>

@@ -1,1 +1,26 @@
 # Configuración de herramientas
+tools:
+  exiftool: 
+    enabled: true
+    command: exiftool
+    description: "Extracción de metadatos EXIF"
+    
+  ghiro:
+    enabled:  false
+    command: ghiro
+    description: "Análisis automatizado de imágenes"
+    
+  sherloq:
+    enabled: false
+    command: sherloq
+    description: "Detección de manipulación"
+    
+  forensically:
+    enabled: false
+    command: forensically
+    description: "Análisis ELA y detección de clonación"
+    
+  autopsy:
+    enabled: false
+    command: autopsy
+    description: "Análisis forense profundo"
