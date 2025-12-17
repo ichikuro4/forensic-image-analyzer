@@ -3,8 +3,9 @@ Generador de informes forenses
 """
 
 import json
+import base64
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List, Tuple
 from datetime import datetime
 import logging
 from jinja2 import Environment, FileSystemLoader
@@ -16,7 +17,7 @@ def format_file_size(size_bytes: int) -> str:
     Formatea bytes a formato legible
     
     Args:
-        size_bytes:  Tamaño en bytes
+        size_bytes: Tamaño en bytes
     
     Returns:
         String formateado (ej: "2.5 MB")
@@ -26,9 +27,116 @@ def format_file_size(size_bytes: int) -> str:
         if size < 1024.0:
             return "{:.2f} {}".format(size, unit)
         size /= 1024.0
-    return "{:.2f} TB". format(size)
+    return "{:.2f} TB".format(size)
 
-def generate_json_report(consolidated_data:  Dict, output_dir: str) -> str:
+def image_to_base64(image_path: str) -> str:
+    """
+    Convierte una imagen a Base64 para embeber en HTML
+    
+    Args:
+        image_path: Ruta a la imagen
+    
+    Returns: 
+        String Base64 de la imagen
+    """
+    try: 
+        with open(image_path, 'rb') as img_file:
+            encoded = base64.b64encode(img_file.read()).decode('utf-8')
+            # Detectar tipo MIME
+            ext = Path(image_path).suffix.lower()
+            mime_types = {
+                '.jpg': 'image/jpeg',
+                '. jpeg': 'image/jpeg',
+                '.png': 'image/png',
+                '.gif':  'image/gif',
+                '.bmp': 'image/bmp',
+                '.tiff': 'image/tiff'
+            }
+            mime = mime_types.get(ext, 'image/jpeg')
+            return f"data:{mime};base64,{encoded}"
+    except Exception as e: 
+        logger.error(f"Error convirtiendo imagen a Base64: {str(e)}")
+        return ""
+
+def analyze_exif_suspicions(exif_data: Dict) -> List[Tuple[str, str, str]]:
+    """
+    Analiza metadatos EXIF para detectar campos sospechosos
+    
+    Args: 
+        exif_data: Diccionario con datos EXIF
+    
+    Returns:
+        Lista de tuplas (campo, valor, motivo_sospecha)
+    """
+    suspicions = []
+    
+    # Campos que indican software de edición
+    editing_software = [
+        'Software', 'ProcessingSoftware', 'CreatorTool',
+        'HistoryAction', 'HistorySoftwareAgent'
+    ]
+    
+    for field in editing_software:
+        if field in exif_data:
+            value = str(exif_data[field])
+            if any(editor in value. lower() for editor in [
+                'photoshop', 'gimp', 'paint', 'editor', 'adobe', 
+                'lightroom', 'affinity', 'pixlr', 'fotor'
+            ]):
+                suspicions.append((
+                    field,
+                    value,
+                    '⚠️ Software de edición detectado'
+                ))
+    
+    # Verificar inconsistencias de fecha
+    date_fields = {}
+    for field in ['CreateDate', 'ModifyDate', 'DateTimeOriginal', 'FileModifyDate']:
+        if field in exif_data:
+            date_fields[field] = exif_data[field]
+    
+    if len(date_fields) > 1:
+        dates = list(date_fields.values())
+        if len(set(dates)) > 1:  # Fechas diferentes
+            suspicions.append((
+                'Fechas',
+                ', '.join([f"{k}:  {v}" for k, v in date_fields.items()]),
+                '⚠️ Inconsistencia en fechas de creación/modificación'
+            ))
+    
+    # GPS sin fecha
+    has_gps = any(k. startswith('GPS') for k in exif_data. keys())
+    has_date = 'DateTimeOriginal' in exif_data or 'CreateDate' in exif_data
+    
+    if has_gps and not has_date:
+        suspicions.append((
+            'GPS sin fecha',
+            'Coordenadas GPS presentes',
+            '⚠️ Datos GPS sin fecha de captura (poco común)'
+        ))
+    
+    # Thumbnail diferente
+    if 'ThumbnailImage' in exif_data and 'Warning' not in str(exif_data. get('ThumbnailImage', '')):
+        suspicions.append((
+            'Thumbnail',
+            'Presente',
+            'ℹ️ Verificar consistencia con imagen principal'
+        ))
+    
+    # Falta de metadatos esperados
+    expected_fields = ['Make', 'Model', 'DateTimeOriginal']
+    missing = [f for f in expected_fields if f not in exif_data]
+    
+    if len(missing) == len(expected_fields):
+        suspicions.append((
+            'Metadatos básicos',
+            'Ausentes',
+            '⚠️ Falta de metadatos de cámara (posible generación digital)'
+        ))
+    
+    return suspicions
+
+def generate_json_report(consolidated_data: Dict, output_dir: str) -> str:
     """
     Genera informe en formato JSON
     
@@ -36,7 +144,7 @@ def generate_json_report(consolidated_data:  Dict, output_dir: str) -> str:
         consolidated_data: Datos consolidados
         output_dir:  Directorio de salida
     
-    Returns:
+    Returns: 
         Ruta al informe generado
     """
     logger.info("Generando informe JSON...")
@@ -56,13 +164,13 @@ def generate_json_report(consolidated_data:  Dict, output_dir: str) -> str:
     logger.info(f"✅ Informe JSON generado:  {report_file}")
     return str(report_file)
 
-def generate_html_report(consolidated_data: Dict, output_dir:  str) -> str:
+def generate_html_report(consolidated_data: Dict, output_dir: str) -> str:
     """
     Genera informe en formato HTML profesional
     
-    Args:
-        consolidated_data:  Datos consolidados
-        output_dir: Directorio de salida
+    Args: 
+        consolidated_data: Datos consolidados
+        output_dir:  Directorio de salida
     
     Returns:
         Ruta al informe generado
@@ -87,7 +195,7 @@ def generate_html_report(consolidated_data: Dict, output_dir:  str) -> str:
         # Preparar datos para el template
         image_info = consolidated_data.get('image_info', {})
         integrity = consolidated_data.get('integrity', {})
-        analysis = consolidated_data. get('analysis', {})
+        analysis = consolidated_data.get('analysis', {})
         metadata = consolidated_data.get('report_metadata', {})
         
         # Convertir size_bytes a int si es necesario
@@ -95,18 +203,37 @@ def generate_html_report(consolidated_data: Dict, output_dir:  str) -> str:
         if isinstance(size_bytes, str):
             size_bytes = int(size_bytes)
         
+        # Convertir imagen a Base64
+        original_path = image_info.get('original_path', '')
+        acquired_path = image_info.get('acquired_path', '')
+        image_base64 = ''
+        
+        # Intentar con el archivo adquirido primero, luego el original
+        if acquired_path and Path(acquired_path).exists():
+            image_base64 = image_to_base64(acquired_path)
+        elif original_path and Path(original_path).exists():
+            image_base64 = image_to_base64(original_path)
+        
+        # Analizar sospechas en EXIF
+        exif_data = analysis.get('Exiftool', {})
+        suspicions = []
+        if exif_data and not exif_data.get('error'):
+            suspicions = analyze_exif_suspicions(exif_data)
+        
         template_data = {
             'report_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'version': metadata.get('version', '0.1.0'),
-            'image_name':  image_info.get('filename', 'Desconocido'),
-            'original_path': image_info.get('original_path', 'N/A'),
+            'version': metadata.get('version', '0.1. 0'),
+            'image_name': image_info.get('filename', 'Desconocido'),
+            'original_path': original_path,
             'file_size': format_file_size(size_bytes),
             'acquisition_date': image_info.get('timestamp', 'N/A'),
             'md5_hash': integrity.get('md5', 'N/A'),
             'sha1_hash': integrity.get('sha1', 'N/A'),
-            'sha256_hash': integrity.get('sha256', 'N/A'),
+            'sha256_hash':  integrity.get('sha256', 'N/A'),
             'analysis_results': analysis,
-            'analyzers_count': len([a for a in analysis.values() if not a.get('error')])
+            'analyzers_count': len([a for a in analysis.values() if not a.get('error')]),
+            'image_base64': image_base64,
+            'exif_suspicions': suspicions
         }
         
         # Renderizar HTML
@@ -124,16 +251,16 @@ def generate_html_report(consolidated_data: Dict, output_dir:  str) -> str:
         
     except Exception as e: 
         logger.error(f"Error generando informe HTML: {str(e)}")
-        logger.exception(e)  # Log completo del error
+        logger.exception(e)
         raise
 
 def generate_reports(consolidated_data: Dict, output_dir: str) -> Dict[str, str]:
     """
     Genera todos los formatos de informes
     
-    Args:
-        consolidated_data:  Datos consolidados
-        output_dir: Directorio de salida
+    Args: 
+        consolidated_data: Datos consolidados
+        output_dir:  Directorio de salida
     
     Returns:
         Diccionario con rutas de informes generados

@@ -382,6 +382,13 @@
                         <span class="stat-label">Integridad Verificada</span>
                     </div>
                 </div>
+                <!-- Miniatura de la imagen -->
+                {% if image_base64 %}
+                <div class="card">
+                    <div class="card-title">Vista Previa de la Imagen</div>
+                    <img src="{{ image_base64 }}" alt="{{ image_name }}" class="image-preview">
+                </div>
+                {% endif %}
                 
                 <div class="card">
                     <div class="card-title">Información General</div>
@@ -509,7 +516,45 @@
                     <strong>ℹ️ Información:</strong> Esta herramienta aún no está implementada.
                     Será añadida en futuras versiones del sistema.
                 </div>
-                {% else %}
+                {                {% else %}
+                
+                <!-- AÑADIR AQUÍ:  Análisis de sospechas -->
+                {% if tool_name == 'Exiftool' and exif_suspicions %}
+                <div class="card" style="border-left: 4px solid #ff6b6b;">
+                    <div class="card-title">⚠️ Análisis de Anomalías</div>
+                    
+                    {% if exif_suspicions|length > 0 %}
+                    <div class="alert alert-warning">
+                        <strong>Se detectaron {{ exif_suspicions|length }} anomalía(s) en los metadatos: </strong>
+                    </div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Campo</th>
+                                <th>Valor</th>
+                                <th>Observación</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for field, value, reason in exif_suspicions %}
+                            <tr style="background:  #fff3cd;">
+                                <td><strong>{{ field }}</strong></td>
+                                <td style="max-width: 300px; word-break: break-word;">{{ value }}</td>
+                                <td><strong>{{ reason }}</strong></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <strong>✅ No se detectaron anomalías evidentes en los metadatos.</strong>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                <!-- Tabla de resultados normal -->
                 <div class="card">
                     <div class="card-title">Resultados del Análisis</div>
                     <table>
