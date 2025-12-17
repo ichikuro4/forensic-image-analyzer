@@ -12,7 +12,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from analyzers.base_analyzer import BaseAnalyzer
 from analyzers.exiftool import ExiftoolAnalyzer
-from analyzers.ela_analyzer import ELAAnalyzer  # ← NUEVO
+from analyzers.ela_analyzer import ELAAnalyzer
+from analyzers.clone_detection import CloneDetectionAnalyzer  # ← NUEVO
 
 logger = logging.getLogger('ForensicAnalyzer')
 
@@ -20,7 +21,7 @@ class ForensicPipeline:
     """Orquestador del pipeline de análisis"""
     
     def __init__(self):
-        self.analyzers: List[BaseAnalyzer] = []
+        self.analyzers:  List[BaseAnalyzer] = []
         self.results: Dict = {}
         self._initialize_analyzers()
     
@@ -30,22 +31,19 @@ class ForensicPipeline:
         
         # Analizadores actuales
         self.analyzers. append(ExiftoolAnalyzer())
-        self.analyzers. append(ELAAnalyzer())  # ← NUEVO
+        self.analyzers. append(ELAAnalyzer())
+        self.analyzers. append(CloneDetectionAnalyzer())  # ← NUEVO
         
-        # TODO: Añadir más adelante
-        # from analyzers.sherloq import SherloqAnalyzer
-        # from analyzers.clone_detection import CloneDetectionAnalyzer
-        # self.analyzers.append(SherloqAnalyzer())
-        # self.analyzers.append(CloneDetectionAnalyzer())
+        # TODO: Añadir Sherloq más adelante si es necesario
         
-        enabled_count = sum(1 for a in self. analyzers if a.enabled)
+        enabled_count = sum(1 for a in self.analyzers if a.enabled)
         logger.info(f"Analizadores activos: {enabled_count}/{len(self.analyzers)}")
     
     def execute_all(self, image_path: str) -> Dict:
         """
         Ejecuta todos los analizadores sobre una imagen
         
-        Args: 
+        Args:
             image_path: Ruta a la imagen
         
         Returns:

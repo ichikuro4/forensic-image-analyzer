@@ -243,6 +243,14 @@ def generate_html_report(consolidated_data: Dict, output_dir: str) -> str:
             ela_path = ela_results['ela_image_path']
             if Path(ela_path).exists():
                 template_data['ela_image_base64'] = image_to_base64(ela_path)
+        
+        # Verificar si hay resultados Clone Detection y convertir imagen  ← AÑADIR ESTO
+        clone_results = analysis. get('Clone Detection', {})
+        template_data['clone_image_base64'] = ''
+        if clone_results and clone_results. get('clone_image_path'):
+            clone_path = clone_results['clone_image_path']
+            if Path(clone_path).exists():
+                template_data['clone_image_base64'] = image_to_base64(clone_path)
 
         # Renderizar HTML
         html_content = template. render(**template_data)
