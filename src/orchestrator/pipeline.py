@@ -13,7 +13,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from analyzers.base_analyzer import BaseAnalyzer
 from analyzers.exiftool import ExiftoolAnalyzer
 from analyzers.ela_analyzer import ELAAnalyzer
-from analyzers.clone_detection import CloneDetectionAnalyzer  # ← NUEVO
+from analyzers.clone_detection import CloneDetectionAnalyzer
+from analyzers.noise_analyzer import NoiseAnalyzer  # ← NUEVO
+from analyzers.jpeg_quality import JPEGQualityAnalyzer  # ← NUEVO
 
 logger = logging.getLogger('ForensicAnalyzer')
 
@@ -21,7 +23,7 @@ class ForensicPipeline:
     """Orquestador del pipeline de análisis"""
     
     def __init__(self):
-        self.analyzers:  List[BaseAnalyzer] = []
+        self.analyzers: List[BaseAnalyzer] = []
         self.results: Dict = {}
         self._initialize_analyzers()
     
@@ -32,9 +34,9 @@ class ForensicPipeline:
         # Analizadores actuales
         self.analyzers. append(ExiftoolAnalyzer())
         self.analyzers. append(ELAAnalyzer())
-        self.analyzers. append(CloneDetectionAnalyzer())  # ← NUEVO
-        
-        # TODO: Añadir Sherloq más adelante si es necesario
+        self.analyzers.append(CloneDetectionAnalyzer())
+        self.analyzers.append(NoiseAnalyzer())  # ← NUEVO
+        self.analyzers.append(JPEGQualityAnalyzer())  # ← NUEVO
         
         enabled_count = sum(1 for a in self.analyzers if a.enabled)
         logger.info(f"Analizadores activos: {enabled_count}/{len(self.analyzers)}")
@@ -43,7 +45,7 @@ class ForensicPipeline:
         """
         Ejecuta todos los analizadores sobre una imagen
         
-        Args:
+        Args: 
             image_path: Ruta a la imagen
         
         Returns:
@@ -56,7 +58,7 @@ class ForensicPipeline:
         for analyzer in self.analyzers:
             if analyzer.enabled:
                 try:
-                    result = analyzer. run(image_path)
+                    result = analyzer.run(image_path)
                     self.results[analyzer.name] = result
                 except Exception as e:
                     logger.error(f"Error en {analyzer.name}: {str(e)}")

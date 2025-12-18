@@ -244,13 +244,29 @@ def generate_html_report(consolidated_data: Dict, output_dir: str) -> str:
             if Path(ela_path).exists():
                 template_data['ela_image_base64'] = image_to_base64(ela_path)
         
-        # Verificar si hay resultados Clone Detection y convertir imagen  ← AÑADIR ESTO
+        # Verificar si hay resultados Clone Detection y convertir imagen
         clone_results = analysis. get('Clone Detection', {})
         template_data['clone_image_base64'] = ''
-        if clone_results and clone_results. get('clone_image_path'):
+        if clone_results and clone_results.get('clone_image_path'):
             clone_path = clone_results['clone_image_path']
             if Path(clone_path).exists():
                 template_data['clone_image_base64'] = image_to_base64(clone_path)
+        
+        # Verificar si hay resultados Noise Analysis y convertir imagen ← NUEVO
+        noise_results = analysis.get('Noise Analysis', {})
+        template_data['noise_image_base64'] = ''
+        if noise_results and noise_results.get('noise_image_path'):
+            noise_path = noise_results['noise_image_path']
+            if Path(noise_path).exists():
+                template_data['noise_image_base64'] = image_to_base64(noise_path)
+        
+        # Verificar si hay resultados JPEG Quality y convertir imagen ← NUEVO
+        jpeg_results = analysis.get('JPEG Quality Analysis', {})
+        template_data['jpeg_image_base64'] = ''
+        if jpeg_results and jpeg_results.get('jpeg_image_path'):
+            jpeg_path = jpeg_results['jpeg_image_path']
+            if Path(jpeg_path).exists():
+                template_data['jpeg_image_base64'] = image_to_base64(jpeg_path)
 
         # Renderizar HTML
         html_content = template. render(**template_data)
