@@ -281,13 +281,26 @@ def generate_html_report(consolidated_data: Dict, output_dir: str) -> str:
             if Path(arrows_path).exists():
                 template_data['luminance_arrows_base64'] = image_to_base64(arrows_path)
         
-        # Verificar si hay resultados Edge Inconsistency ← NUEVO
+    # Verificar si hay resultados Edge Inconsistency
         edge_results = analysis.get('Edge Inconsistency', {})
         template_data['edge_image_base64'] = ''
         if edge_results and edge_results.get('edge_image_path'):
             edge_path = edge_results['edge_image_path']
             if Path(edge_path).exists():
                 template_data['edge_image_base64'] = image_to_base64(edge_path)
+        
+    # Verificar si hay resultados Splicing Detection ← NUEVO
+        splicing_results = analysis.get('Splicing Detection', {})
+        template_data['splicing_boundaries_base64'] = ''
+        template_data['splicing_noise_base64'] = ''
+        if splicing_results and splicing_results.get('splicing_boundaries_path'):
+            boundaries_path = splicing_results['splicing_boundaries_path']
+            if Path(boundaries_path).exists():
+                template_data['splicing_boundaries_base64'] = image_to_base64(boundaries_path)
+        if splicing_results and splicing_results.get('splicing_noise_path'):
+            noise_path = splicing_results['splicing_noise_path']
+            if Path(noise_path).exists():
+                template_data['splicing_noise_base64'] = image_to_base64(noise_path)
 
         # Renderizar HTML
         html_content = template. render(**template_data)

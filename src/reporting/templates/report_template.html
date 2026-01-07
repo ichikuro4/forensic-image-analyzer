@@ -1046,6 +1046,186 @@
                             </tbody>
                         </table>
                     </div>
+                <!-- Análisis específico para Splicing Detection -->
+                {% elif tool_name == 'Splicing Detection' %}
+                    
+                    <!-- Nivel de Sospecha -->
+                    {% if tool_data.suspicion_level %}
+                    <div class="suspicion-box suspicion-{{ tool_data.suspicion_level|lower|replace(' ', '-') }}">
+                        🔍 Nivel de Sospecha: {{ tool_data.suspicion_level|upper }}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Score Global de Splicing -->
+                    {% if tool_data.global_splicing_score is not none %}
+                    <div class="card">
+                        <div class="card-title">📊 Score Global de Splicing</div>
+                        <div style="text-align: center; padding: 20px;">
+                            <div style="font-size: 3em; font-weight: bold; color: {% if tool_data.global_splicing_score < 20 %}#28a745{% elif tool_data. global_splicing_score < 40 %}#ffc107{% elif tool_data.global_splicing_score < 60 %}#fd7e14{% else %}#dc3545{% endif %};">
+                                {{ "%.1f"|format(tool_data.global_splicing_score) }}%
+                            </div>
+                            <p style="color: #666; margin-top: 10px;">
+                                {% if tool_data.global_splicing_score < 20 %}
+                                🟢 <strong>Bajo</strong> - No se detecta splicing
+                                {% elif tool_data.global_splicing_score < 40 %}
+                                🟡 <strong>Moderado</strong> - Algunas inconsistencias detectadas
+                                {% elif tool_data.global_splicing_score < 60 %}
+                                🟠 <strong>Alto</strong> - Alta probabilidad de splicing
+                                {% else %}
+                                🔴 <strong>Muy Alto</strong> - Evidencia fuerte de splicing
+                                {% endif %}
+                            </p>
+                        </div>
+                        
+                        <!-- Desglose de Scores -->
+                        <div style="margin-top: 20px; padding:  15px; background: #f8f9fa; border-radius: 8px;">
+                            <h4 style="margin-bottom: 15px; color: #495057;">📈 Desglose de Análisis</h4>
+                            
+                            <div style="margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span><strong>🔲 Detección de Límites: </strong></span>
+                                    <span style="font-weight: bold; color: {% if tool_data.boundary_detection_score < 20 %}#28a745{% elif tool_data.boundary_detection_score < 40 %}#ffc107{% elif tool_data.boundary_detection_score < 60 %}#fd7e14{% else %}#dc3545{% endif %};">
+                                        {{ "%.1f"|format(tool_data.boundary_detection_score) }}%
+                                    </span>
+                                </div>
+                                <div style="background: #e9ecef; border-radius: 10px; overflow: hidden; height: 10px;">
+                                    <div style="background: {% if tool_data.boundary_detection_score < 20 %}#28a745{% elif tool_data.boundary_detection_score < 40 %}#ffc107{% elif tool_data.boundary_detection_score < 60 %}#fd7e14{% else %}#dc3545{% endif %}; width: {{ tool_data. boundary_detection_score }}%; height: 100%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span><strong>🔊 Inconsistencia de Ruido:</strong></span>
+                                    <span style="font-weight: bold; color: {% if tool_data.noise_inconsistency_score < 20 %}#28a745{% elif tool_data.noise_inconsistency_score < 40 %}#ffc107{% elif tool_data.noise_inconsistency_score < 60 %}#fd7e14{% else %}#dc3545{% endif %};">
+                                        {{ "%.1f"|format(tool_data.noise_inconsistency_score) }}%
+                                    </span>
+                                </div>
+                                <div style="background: #e9ecef; border-radius: 10px; overflow: hidden; height: 10px;">
+                                    <div style="background: {% if tool_data.noise_inconsistency_score < 20 %}#28a745{% elif tool_data.noise_inconsistency_score < 40 %}#ffc107{% elif tool_data.noise_inconsistency_score < 60 %}#fd7e14{% else %}#dc3545{% endif %}; width: {{ tool_data.noise_inconsistency_score }}%; height: 100%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span><strong>📐 Inconsistencia DCT:</strong></span>
+                                    <span style="font-weight: bold; color: {% if tool_data.dct_inconsistency_score < 20 %}#28a745{% elif tool_data.dct_inconsistency_score < 40 %}#ffc107{% elif tool_data.dct_inconsistency_score < 60 %}#fd7e14{% else %}#dc3545{% endif %};">
+                                        {{ "%.1f"|format(tool_data. dct_inconsistency_score) }}%
+                                    </span>
+                                </div>
+                                <div style="background:  #e9ecef; border-radius: 10px; overflow:  hidden; height: 10px;">
+                                    <div style="background: {% if tool_data. dct_inconsistency_score < 20 %}#28a745{% elif tool_data. dct_inconsistency_score < 40 %}#ffc107{% elif tool_data.dct_inconsistency_score < 60 %}#fd7e14{% else %}#dc3545{% endif %}; width: {{ tool_data.dct_inconsistency_score }}%; height: 100%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span><strong>🎨 Inconsistencia de Color:</strong></span>
+                                    <span style="font-weight: bold; color: {% if tool_data.color_inconsistency_score < 20 %}#28a745{% elif tool_data.color_inconsistency_score < 40 %}#ffc107{% elif tool_data.color_inconsistency_score < 60 %}#fd7e14{% else %}#dc3545{% endif %};">
+                                        {{ "%.1f"|format(tool_data.color_inconsistency_score) }}%
+                                    </span>
+                                </div>
+                                <div style="background: #e9ecef; border-radius: 10px; overflow: hidden; height: 10px;">
+                                    <div style="background: {% if tool_data.color_inconsistency_score < 20 %}#28a745{% elif tool_data.color_inconsistency_score < 40 %}#ffc107{% elif tool_data.color_inconsistency_score < 60 %}#fd7e14{% else %}#dc3545{% endif %}; width: {{ tool_data.color_inconsistency_score }}%; height: 100%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Interpretación -->
+                    {% if tool_data.interpretation %}
+                    <div class="card">
+                        <div class="card-title">📋 Interpretación</div>
+                        <p style="line-height: 1.8; color: #555; font-size: 1.05em;">
+                            {{ tool_data.interpretation }}
+                        </p>
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: #e7f3ff; border-left: 4px solid #2196F3; border-radius: 5px;">
+                            <strong>ℹ️ ¿Qué es Splicing? </strong><br>
+                            <span style="color: #555;">
+                                Splicing es la técnica de combinar partes de dos o más imágenes diferentes en una sola. 
+                                Este análisis combina múltiples técnicas (ruido, DCT, color, límites) para detectar estas uniones.
+                            </span>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Comparación ANTES / DESPUÉS (3 vistas) -->
+                    {% if image_base64 and splicing_boundaries_base64 %}
+                    <div class="card">
+                        <div class="card-title">🖼️ Análisis Visual:  Original vs Detección de Límites vs Mapa de Ruido</div>
+                        <p style="color: #666; margin-bottom: 15px; line-height: 1.6;">
+                            <strong>¿Cómo interpretar estas visualizaciones?</strong><br>
+                            • <strong>Detección de Límites:</strong> Las áreas <strong style="color: #ff0000;">rojas/amarillas</strong> muestran transiciones sospechosas entre regiones<br>
+                            • <strong>Mapa de Ruido:</strong> Muestra la varianza de ruido (colores diferentes = posibles fuentes diferentes)<br>
+                            • <strong>Límites fuertes</strong> = Posible unión de imágenes de diferentes fuentes<br>
+                            • <strong>Uniformidad</strong> = Imagen probablemente auténtica
+                        </p>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 20px;">
+                            <div>
+                                <h4 style="text-align: center; color: #667eea; margin-bottom: 10px;">📷 Original</h4>
+                                <img src="{{ image_base64 }}" alt="Original" class="image-preview" style="border: 3px solid #667eea;">
+                            </div>
+                            <div>
+                                <h4 style="text-align: center; color: #764ba2; margin-bottom: 10px;">🔍 Límites Detectados</h4>
+                                <img src="{{ splicing_boundaries_base64 }}" alt="Splicing Boundaries" class="image-preview" style="border: 3px solid #764ba2;">
+                            </div>
+                            {% if splicing_noise_base64 %}
+                            <div>
+                                <h4 style="text-align: center; color: #f093fb; margin-bottom: 10px;">🔊 Mapa de Ruido</h4>
+                                <img src="{{ splicing_noise_base64 }}" alt="Noise Map" class="image-preview" style="border: 3px solid #f093fb;">
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Datos Técnicos Splicing -->
+                    <div class="card">
+                        <div class="card-title">📊 Datos Técnicos Detallados</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Parámetro</th>
+                                    <th>Valor</th>
+                                    <th>Descripción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Global Splicing Score</strong></td>
+                                    <td>{{ "%.2f"|format(tool_data. global_splicing_score) }}%</td>
+                                    <td>Score combinado de todos los análisis</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Boundary Detection</strong></td>
+                                    <td>{{ "%.2f"|format(tool_data. boundary_detection_score) }}%</td>
+                                    <td>Detección de límites entre regiones</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Noise Inconsistency</strong></td>
+                                    <td>{{ "%.2f"|format(tool_data.noise_inconsistency_score) }}%</td>
+                                    <td>Variación en patrón de ruido</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>DCT Inconsistency</strong></td>
+                                    <td>{{ "%.2f"|format(tool_data.dct_inconsistency_score) }}%</td>
+                                    <td>Anomalías en coeficientes DCT</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Color Inconsistency</strong></td>
+                                    <td>{{ "%.2f"|format(tool_data.color_inconsistency_score) }}%</td>
+                                    <td>Variación en estadísticas de color</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Suspicion Level</strong></td>
+                                    <td><strong>{{ tool_data.suspicion_level }}</strong></td>
+                                    <td>Clasificación global del análisis</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
                 <!-- Análisis de anomalías para Exiftool -->
                 {% elif tool_name == 'Exiftool' %}

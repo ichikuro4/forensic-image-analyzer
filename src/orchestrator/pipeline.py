@@ -16,8 +16,9 @@ from analyzers.ela_analyzer import ELAAnalyzer
 from analyzers.clone_detection import CloneDetectionAnalyzer
 from analyzers.noise_analyzer import NoiseAnalyzer
 from analyzers.jpeg_quality import JPEGQualityAnalyzer
-from analyzers.luminance_analyzer import LuminanceAnalyzer  # ← NUEVO
-from analyzers.edge_analyzer import EdgeAnalyzer  # ← NUEVO
+from analyzers.luminance_analyzer import LuminanceAnalyzer
+from analyzers.edge_analyzer import EdgeAnalyzer
+from analyzers.splicing_detector import SplicingDetector  # ← NUEVO
 
 logger = logging.getLogger('ForensicAnalyzer')
 
@@ -25,7 +26,7 @@ class ForensicPipeline:
     """Orquestador del pipeline de análisis"""
     
     def __init__(self):
-        self.analyzers:  List[BaseAnalyzer] = []
+        self.analyzers: List[BaseAnalyzer] = []
         self.results: Dict = {}
         self._initialize_analyzers()
     
@@ -36,11 +37,12 @@ class ForensicPipeline:
         # Analizadores actuales
         self.analyzers. append(ExiftoolAnalyzer())
         self.analyzers. append(ELAAnalyzer())
-        self.analyzers.append(CloneDetectionAnalyzer())
+        self.analyzers. append(CloneDetectionAnalyzer())
         self.analyzers.append(NoiseAnalyzer())
-        self.analyzers.append(JPEGQualityAnalyzer())
-        self.analyzers. append(LuminanceAnalyzer())  # ← NUEVO
-        self.analyzers.append(EdgeAnalyzer())  # ← NUEVO
+        self.analyzers. append(JPEGQualityAnalyzer())
+        self.analyzers.append(LuminanceAnalyzer())
+        self.analyzers.append(EdgeAnalyzer())
+        self.analyzers.append(SplicingDetector())  # ← NUEVO
         
         enabled_count = sum(1 for a in self. analyzers if a.enabled)
         logger.info(f"Analizadores activos: {enabled_count}/{len(self.analyzers)}")
@@ -49,8 +51,8 @@ class ForensicPipeline:
         """
         Ejecuta todos los analizadores sobre una imagen
         
-        Args:  
-            image_path:  Ruta a la imagen
+        Args: 
+            image_path: Ruta a la imagen
         
         Returns:
             Diccionario con todos los resultados
@@ -66,7 +68,7 @@ class ForensicPipeline:
                     self.results[analyzer.name] = result
                 except Exception as e:
                     logger.error(f"Error en {analyzer.name}: {str(e)}")
-                    self.results[analyzer.name] = {'error': str(e)}
+                    self. results[analyzer.name] = {'error': str(e)}
         
         logger.info("✅ Pipeline completado")
         return self.results
