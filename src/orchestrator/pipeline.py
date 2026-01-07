@@ -14,8 +14,10 @@ from analyzers.base_analyzer import BaseAnalyzer
 from analyzers.exiftool import ExiftoolAnalyzer
 from analyzers.ela_analyzer import ELAAnalyzer
 from analyzers.clone_detection import CloneDetectionAnalyzer
-from analyzers.noise_analyzer import NoiseAnalyzer  # ← NUEVO
-from analyzers.jpeg_quality import JPEGQualityAnalyzer  # ← NUEVO
+from analyzers.noise_analyzer import NoiseAnalyzer
+from analyzers.jpeg_quality import JPEGQualityAnalyzer
+from analyzers.luminance_analyzer import LuminanceAnalyzer  # ← NUEVO
+from analyzers.edge_analyzer import EdgeAnalyzer  # ← NUEVO
 
 logger = logging.getLogger('ForensicAnalyzer')
 
@@ -23,7 +25,7 @@ class ForensicPipeline:
     """Orquestador del pipeline de análisis"""
     
     def __init__(self):
-        self.analyzers: List[BaseAnalyzer] = []
+        self.analyzers:  List[BaseAnalyzer] = []
         self.results: Dict = {}
         self._initialize_analyzers()
     
@@ -35,18 +37,20 @@ class ForensicPipeline:
         self.analyzers. append(ExiftoolAnalyzer())
         self.analyzers. append(ELAAnalyzer())
         self.analyzers.append(CloneDetectionAnalyzer())
-        self.analyzers.append(NoiseAnalyzer())  # ← NUEVO
-        self.analyzers.append(JPEGQualityAnalyzer())  # ← NUEVO
+        self.analyzers.append(NoiseAnalyzer())
+        self.analyzers.append(JPEGQualityAnalyzer())
+        self.analyzers. append(LuminanceAnalyzer())  # ← NUEVO
+        self.analyzers.append(EdgeAnalyzer())  # ← NUEVO
         
-        enabled_count = sum(1 for a in self.analyzers if a.enabled)
+        enabled_count = sum(1 for a in self. analyzers if a.enabled)
         logger.info(f"Analizadores activos: {enabled_count}/{len(self.analyzers)}")
     
     def execute_all(self, image_path: str) -> Dict:
         """
         Ejecuta todos los analizadores sobre una imagen
         
-        Args: 
-            image_path: Ruta a la imagen
+        Args:  
+            image_path:  Ruta a la imagen
         
         Returns:
             Diccionario con todos los resultados
@@ -58,7 +62,7 @@ class ForensicPipeline:
         for analyzer in self.analyzers:
             if analyzer.enabled:
                 try:
-                    result = analyzer.run(image_path)
+                    result = analyzer. run(image_path)
                     self.results[analyzer.name] = result
                 except Exception as e:
                     logger.error(f"Error en {analyzer.name}: {str(e)}")

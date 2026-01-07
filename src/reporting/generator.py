@@ -260,13 +260,34 @@ def generate_html_report(consolidated_data: Dict, output_dir: str) -> str:
             if Path(noise_path).exists():
                 template_data['noise_image_base64'] = image_to_base64(noise_path)
         
-        # Verificar si hay resultados JPEG Quality y convertir imagen ← NUEVO
+                # Verificar si hay resultados JPEG Quality y convertir imagen
         jpeg_results = analysis.get('JPEG Quality Analysis', {})
         template_data['jpeg_image_base64'] = ''
         if jpeg_results and jpeg_results.get('jpeg_image_path'):
             jpeg_path = jpeg_results['jpeg_image_path']
             if Path(jpeg_path).exists():
                 template_data['jpeg_image_base64'] = image_to_base64(jpeg_path)
+        
+        # Verificar si hay resultados Luminance Gradient ← NUEVO
+        luminance_results = analysis.get('Luminance Gradient', {})
+        template_data['luminance_heatmap_base64'] = ''
+        template_data['luminance_arrows_base64'] = ''
+        if luminance_results and luminance_results.get('luminance_heatmap_path'):
+            heatmap_path = luminance_results['luminance_heatmap_path']
+            if Path(heatmap_path).exists():
+                template_data['luminance_heatmap_base64'] = image_to_base64(heatmap_path)
+        if luminance_results and luminance_results.get('luminance_arrows_path'):
+            arrows_path = luminance_results['luminance_arrows_path']
+            if Path(arrows_path).exists():
+                template_data['luminance_arrows_base64'] = image_to_base64(arrows_path)
+        
+        # Verificar si hay resultados Edge Inconsistency ← NUEVO
+        edge_results = analysis.get('Edge Inconsistency', {})
+        template_data['edge_image_base64'] = ''
+        if edge_results and edge_results.get('edge_image_path'):
+            edge_path = edge_results['edge_image_path']
+            if Path(edge_path).exists():
+                template_data['edge_image_base64'] = image_to_base64(edge_path)
 
         # Renderizar HTML
         html_content = template. render(**template_data)
