@@ -5,22 +5,30 @@ tools:
     command: exiftool
     description: "Extracción de metadatos EXIF"
     
-  ghiro:
-    enabled:  false
-    command: ghiro
-    description: "Análisis automatizado de imágenes"
+  ela_analyzer:
+    enabled: true
+    description: "Error Level Analysis - Detección de manipulación"
     
-  sherloq:
-    enabled: false
-    command: sherloq
-    description: "Detección de manipulación"
+  clone_detection:
+    enabled: true
+    description: "Detección de regiones clonadas/duplicadas"
     
-  forensically:
-    enabled: false
-    command: forensically
-    description: "Análisis ELA y detección de clonación"
+  noise_analyzer:
+    enabled: true
+    description: "Análisis de patrones de ruido digital"
     
-  autopsy:
-    enabled: false
-    command: autopsy
-    description: "Análisis forense profundo"
+  jpeg_quality:
+    enabled: true
+    description: "Análisis de calidad y compresión JPEG"
+    
+  luminance_analyzer:
+    enabled: true
+    description: "Análisis de inconsistencias de iluminación"
+    
+  edge_analyzer:
+    enabled: true
+    description: "Análisis de discontinuidades en bordes"
+    
+  splicing_detector:
+    enabled: true
+    description: "Detección de regiones unidas artificialmente"

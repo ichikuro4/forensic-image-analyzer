@@ -13,6 +13,11 @@ Herramienta profesional para análisis forense de imágenes digitales que automa
 - 🔍 **Análisis de metadatos**: Extracción completa con Exiftool
 - 🖼️ **Análisis ELA**: Detección de manipulación mediante Error Level Analysis
 - 🔬 **Detección de clonación**: Identificación de regiones duplicadas
+- 🔊 **Análisis de ruido**: Detección de patrones de ruido anómalos
+- 📏 **Análisis de calidad JPEG**: Evaluación de compresión y artefactos
+- 💡 **Análisis de luminancia**: Detección de inconsistencias de iluminación
+- 🔲 **Análisis de bordes**: Identificación de discontinuidades sospechosas
+- 🎯 **Detección de splicing**: Identificación de regiones unidas artificialmente
 - 📊 **Informes consolidados**: Generación automática en JSON y HTML
 - 📝 **Logging profesional**: Sistema de logs con colores y niveles
 - 🎨 **Visualizaciones**: Mapas de calor y gráficos interactivos con Plotly
@@ -28,10 +33,14 @@ Herramienta profesional para análisis forense de imágenes digitales que automa
 | **analyzers/exiftool** | ✅ | Extracción de metadatos EXIF/XMP/IPTC |
 | **analyzers/ela_analyzer** | ✅ | Error Level Analysis para detectar manipulación |
 | **analyzers/clone_detection** | ✅ | Detección de regiones clonadas/duplicadas |
+| **analyzers/noise_analyzer** | ✅ | Análisis de patrones de ruido digital |
+| **analyzers/jpeg_quality** | ✅ | Análisis de calidad y compresión JPEG |
+| **analyzers/luminance_analyzer** | ✅ | Análisis de inconsistencias de iluminación |
+| **analyzers/edge_analyzer** | ✅ | Análisis de discontinuidades en bordes |
+| **analyzers/splicing_detector** | ✅ | Detección de regiones unidas (splicing) |
 | **orchestrator/pipeline** | ✅ | Orquestación automática de analizadores |
 | **reporting/consolidator** | ✅ | Consolidación de resultados |
 | **reporting/generator** | ✅ | Generación de informes HTML/JSON |
-| **gui/main_window** | 🚧 | Interfaz gráfica (en desarrollo) |
 
 ## 📦 Requisitos del Sistema
 
@@ -86,10 +95,7 @@ python src/main.py --image foto.jpg --output ./resultados
 python src/main.py --image foto.png --verbose
 ```
 
-### Modo GUI
-```bash
-python src/main.py --gui  # En desarrollo
-```
+
 
 ### Ejemplos de salida
 
@@ -102,7 +108,10 @@ El sistema genera dos tipos de informes:
    - Metadatos EXIF completos
    - Mapa de calor ELA
    - Detección de clonación
-   - Estadísticas del análisis
+   - Análisis de ruido digital
+   - Evaluación de calidad JPEG
+   - Análisis de luminancia y bordes
+   - Detección de splicing
 
 ## 📁 Estructura del Proyecto
 
@@ -123,10 +132,11 @@ forensic-image-analyzer/
 │   │   ├── exiftool.py         # ✅ Extractor de metadatos
 │   │   ├── ela_analyzer.py     # ✅ Error Level Analysis
 │   │   ├── clone_detection.py  # ✅ Detección de clonación
-│   │   ├── ghiro.py            # 🚧 Pendiente
-│   │   ├── sherloq.py          # 🚧 Pendiente
-│   │   ├── forensically.py     # 🚧 Pendiente
-│   │   └── autopsy.py          # 🚧 Pendiente
+│   │   ├── noise_analyzer.py   # ✅ Análisis de ruido
+│   │   ├── jpeg_quality.py     # ✅ Análisis de calidad JPEG
+│   │   ├── luminance_analyzer.py # ✅ Análisis de luminancia
+│   │   ├── edge_analyzer.py    # ✅ Análisis de bordes
+│   │   └── splicing_detector.py # ✅ Detección de splicing
 │   │
 │   ├── orchestrator/           # Orquestación del pipeline
 │   │   └── pipeline.py         # ✅ Coordinador de análisis
@@ -139,7 +149,7 @@ forensic-image-analyzer/
 │   │   └── static/             # Recursos estáticos
 │   │
 │   ├── gui/                    # Interfaz gráfica
-│   │   └── main_window.py      # 🚧 En desarrollo
+│   │   └── main_window.py      # (Placeholder - no implementado)
 │   │
 │   └── main.py                 # ✅ Punto de entrada principal
 │
@@ -184,17 +194,18 @@ Imagen → [1] Verificación → [2] Adquisición → [3] Análisis → [4] Repo
 - Generación HTML interactivo
 - Exportación JSON estructurado
 
-### Analizadores Disponibles
+### Analizadores Implementados
 
-| Analizador | Estado | Técnica | Output |
-|-----------|--------|---------|--------|
-| **Exiftool** | ✅ Activo | Metadatos EXIF/IPTC/XMP | JSON estructurado |
-| **ELA Analyzer** | ✅ Activo | Error Level Analysis | Mapa de calor, métricas |
-| **Clone Detection** | ✅ Activo | Detección de duplicados | Regiones clonadas |
-| **Sherloq** | 🔜 Planificado | Análisis multitécnica | Varios |
-| **Ghiro** | 🔜 Planificado | Análisis automatizado | JSON |
-| **Forensically** | 🔜 Planificado | ELA + Clonación web | Visualizaciones |
-| **Autopsy** | 🔜 Planificado | Análisis profundo | Base de datos |
+| Analizador | Técnica | Output |
+|-----------|---------|--------|
+| **Exiftool** | Metadatos EXIF/IPTC/XMP | JSON estructurado |
+| **ELA Analyzer** | Error Level Analysis | Mapa de calor, métricas |
+| **Clone Detection** | Detección de regiones duplicadas | Coordenadas de regiones clonadas |
+| **Noise Analyzer** | Análisis de patrones de ruido | Estadísticas de ruido por canal |
+| **JPEG Quality** | Análisis de compresión JPEG | Factor de calidad estimado |
+| **Luminance Analyzer** | Análisis de iluminación | Inconsistencias de luminancia |
+| **Edge Analyzer** | Detección de discontinuidades | Métricas de bordes sospechosos |
+| **Splicing Detector** | Detección de uniones artificiales | Regiones con splicing detectado |
 
 ## 🗺️ Roadmap de Desarrollo
 
@@ -210,43 +221,38 @@ Imagen → [1] Verificación → [2] Adquisición → [3] Análisis → [4] Repo
 - [x] Wrapper de Exiftool (metadatos)
 - [x] ELA Analyzer (Error Level Analysis)
 - [x] Clone Detection (detección de regiones duplicadas)
+- [x] Noise Analyzer (análisis de ruido digital)
+- [x] JPEG Quality Analyzer (análisis de compresión)
+- [x] Luminance Analyzer (análisis de iluminación)
+- [x] Edge Analyzer (análisis de discontinuidades)
+- [x] Splicing Detector (detección de uniones artificiales)
 - [x] Orquestador de pipeline
 - [x] Consolidador de resultados
 - [x] Generador de informes JSON
 - [x] Generador de informes HTML con Jinja2
 
-### 🚧 Fase 3: Expansión (En Desarrollo)
-- [ ] Integración de Sherloq
-- [ ] Integración de Ghiro
+### 🔜 Fase 3: Mejoras Futuras
 - [ ] Mejoras en visualizaciones
-- [ ] Interfaz gráfica (GUI) completa
 - [ ] Tests unitarios
 - [ ] Documentación de API
+- [ ] Optimización de rendimiento
 
-### 🔜 Fase 4: Optimización (Planificado)
+### 🔜 Fase 4: Optimización (Futuro)
 - [ ] Ejecución paralela de analizadores
-- [ ] Caché de resultados
 - [ ] Análisis batch de múltiples imágenes
 - [ ] Exportación a PDF
 - [ ] Base de datos de resultados históricos
 - [ ] API REST para integración
-
-### 🔜 Fase 5: Producción (Futuro)
-- [ ] Optimización para LiveUSB
-- [ ] Modo offline completo
-- [ ] Firma digital de informes
 - [ ] Sistema de plugins
-- [ ] Documentación forense legal
-- [ ] Certificaciones y compliance
 
 ## 📊 Estado Actual del Proyecto
 
-- **Versión**: 0.1.0 (Alpha)
-- **Completado**: ~60%
-- **Analizadores activos**: 3/7
+- **Versión**: 0.1.0 (Beta)
+- **Completado**: ~85%
+- **Analizadores implementados**: 8
 - **Módulos core**: 100%
 - **Sistema de informes**: 100%
-- **GUI**: 10%
+- **Pipeline de análisis**: 100%
 
 ## 🧪 Testing
 
@@ -291,6 +297,16 @@ tools:
   ela_analyzer:
     enabled: true
   clone_detection:
+    enabled: true
+  noise_analyzer:
+    enabled: true
+  jpeg_quality:
+    enabled: true
+  luminance_analyzer:
+    enabled: true
+  edge_analyzer:
+    enabled: true
+  splicing_detector:
     enabled: true
 ```
 
@@ -340,7 +356,7 @@ Si encuentras un bug, por favor abre un issue con:
 ### Limitaciones Conocidas
 - ELA Analyzer requiere imágenes JPEG para mejores resultados
 - Clone Detection puede ser lento con imágenes grandes (>10MP)
-- GUI aún no implementada completamente
+- Algunos analizadores funcionan mejor con resoluciones específicas
 
 ### Rendimiento
 - Imagen 5MP: ~5-10 segundos
@@ -390,6 +406,6 @@ ls data/output/
 
 ⚠️ **Nota Legal**: Esta herramienta está diseñada para análisis forense legítimo. El uso de esta herramienta debe cumplir con las leyes locales y tener la autorización apropiada.
 
-🚀 **Estado**: Proyecto en desarrollo activo. Versión Alpha 0.1.0
+🚀 **Estado**: Proyecto funcional con 8 analizadores implementados. Versión Beta 0.1.0
 
 ⭐ Si este proyecto te resulta útil, considera darle una estrella en GitHub! 
